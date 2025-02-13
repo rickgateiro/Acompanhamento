@@ -1,0 +1,92 @@
+[
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:02:06.939874"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:03:07.760759"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:04:07.758810"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:05:07.770090"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:06:08.765317"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:07:08.801550"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:08:08.855045"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:09:08.765677"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:10:08.812839"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:11:08.737195"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Não iniciada",
+    "data_modificacao": "2025-02-13T17:28:08.256151"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Em andamento",
+    "data_modificacao": "2025-02-13T17:28:10.380124"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Cadastro e Permissionamento dos Usuários",
+    "status": "Em andamento",
+    "data_modificacao": "2025-02-13T17:28:11.879710"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Go-Live (Entrada em Produção)",
+    "status": "Em andamento",
+    "data_modificacao": "2025-02-13T17:28:13.460438"
+  },
+  {
+    "cliente": "RIOPREVIDENCIA",
+    "etapa": "Instalação e Configuração do RDC",
+    "status": "Em andamento",
+    "data_modificacao": "2025-02-13T17:29:08.793761"
+  }
+]

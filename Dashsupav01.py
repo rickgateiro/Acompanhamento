@@ -4,10 +4,15 @@ import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output, State
 from datetime import datetime
-import json
-import os
+from supabase import create_client, Client
 
-# Inicialização do app Dash com suppress_callback_exceptions=True
+# Inicialização do Supabase com suas credenciais
+supabase = create_client(
+    "https://fwiilsnqazddwookkrdd.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3aWlsc25xYXpkZHdvb2trcmRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NzcxNTEsImV4cCI6MjA1NTA1MzE1MX0.P8WS526WRNR_H8NWILDalt88xYzB9G0MhmZOAB48lVo"
+)
+
+# Inicialização do app Dash
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
 # Dados iniciais
@@ -21,34 +26,31 @@ status_options = [
     {'label': 'Concluída', 'value': 'Concluída', 'color': '#28a745'}        # Green
 ]
 
-# Função para carregar dados do arquivo JSON
-def load_status_history():
-    if os.path.exists('status_history.json'):
-        try:
-            with open('status_history.json', 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except:
-            return []
-    return []
+# Função para normalizar IDs
+def normalize_id(text):
+    """Normaliza o texto para usar como ID removendo acentos e caracteres especiais"""
+    import unicodedata
+    normalized = unicodedata.normalize('NFKD', text)
+    normalized = normalized.encode('ASCII', 'ignore').decode('ASCII')
+    normalized = normalized.replace(' ', '-').replace('(', '').replace(')', '')
+    return normalized
 
-# Função para salvar dados no arquivo JSON
-def save_status_history(data):
-    try:
-        with open('status_history.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, default=str, indent=2)
-        print(f"Arquivo JSON salvo com sucesso! Total de registros: {len(data)}")
-    except Exception as e:
-        print(f"Erro ao salvar arquivo JSON: {str(e)}")
-
-# Função para obter o status atual
+# Função para obter o status atual do Supabase
 def get_current_status(cliente, etapa):
-    history = load_status_history()
-    # Filtra registros para o cliente e etapa específicos
-    registros = [r for r in history if r['cliente'] == cliente and r['etapa'] == etapa]
-    if registros:
-        # Retorna o status mais recente
-        return sorted(registros, key=lambda x: x['data_modificacao'])[-1]['status']
-    return 'Não iniciada'
+    try:
+        result = supabase.table('status_history').select('*')\
+            .eq('cliente', cliente)\
+            .eq('etapa', etapa)\
+            .order('data_modificacao', desc=True)\
+            .limit(1)\
+            .execute()
+        
+        if result.data and len(result.data) > 0:
+            return result.data[0]['status']
+        return 'Não iniciada'
+    except Exception as e:
+        print(f"Erro ao buscar status: {str(e)}")
+        return 'Não iniciada'
 
 # Layout do app
 app.layout = html.Div([
@@ -66,22 +68,9 @@ app.layout = html.Div([
         interval=60*1000,
         n_intervals=0
     ),
-    html.Div(id='status-store', style={'display': 'none'})  # Div oculto para armazenar callbacks
+    html.Div(id='status-store', style={'display': 'none'})
 ], style={'backgroundColor': '#d4edda', 'minHeight': '100vh'})
 
-# Modifique a função que normaliza os IDs
-def normalize_id(text):
-    """Normaliza o texto para usar como ID removendo acentos e caracteres especiais"""
-    import unicodedata
-    # Normaliza os caracteres Unicode
-    normalized = unicodedata.normalize('NFKD', text)
-    # Remove os acentos
-    normalized = normalized.encode('ASCII', 'ignore').decode('ASCII')
-    # Substitui espaços e outros caracteres por hífen
-    normalized = normalized.replace(' ', '-').replace('(', '').replace(')', '')
-    return normalized
-
-# Modifique a função gerar_progresso_implementacao
 def gerar_progresso_implementacao():
     progresso = []
     for cliente in clientes:
@@ -141,7 +130,6 @@ def gerar_progresso_implementacao():
 def atualizar_progresso(status_changed, n_intervals):
     return gerar_progresso_implementacao()
 
-# Modifique o callback para usar os IDs normalizados
 @app.callback(
     Output('status-store', 'children'),
     [Input(f'status-{normalize_id(cliente)}-{normalize_id(etapa)}', 'value')
@@ -156,46 +144,34 @@ def save_status_changes(*args):
     if not ctx.triggered:
         return ""
     
-    print("Callback acionado!")  # Log para debug
+    print("Callback acionado!")
     
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
     new_value = ctx.triggered[0]['value']
     
-    print(f"Mudança detectada - ID: {trigger_id}, Novo valor: {new_value}")  # Log para debug
-    
-    # Extrair cliente e etapa do ID do componente usando os IDs normalizados
+    # Extrair cliente e etapa do ID do componente
     _, cliente_norm, *etapa_parts = trigger_id.split('-')
     
     # Encontrar o cliente e etapa originais
     cliente = next(c for c in clientes if normalize_id(c) == cliente_norm)
     etapa = next(e for e in etapas if normalize_id(e) in '-'.join(etapa_parts))
     
-    print(f"Cliente: {cliente}, Etapa: {etapa}")  # Log para debug
-    
-    # Carregar histórico existente
-    history = load_status_history()
-    print(f"Histórico atual carregado: {len(history)} registros")  # Log para debug
-    
-    # Adicionar novo registro
-    novo_registro = {
-        'cliente': cliente,
-        'etapa': etapa,
-        'status': new_value,
-        'data_modificacao': datetime.now().isoformat()
-    }
-    history.append(novo_registro)
-    
-    print(f"Novo registro adicionado: {novo_registro}")  # Log para debug
-    
-    # Salvar histórico atualizado
-    save_status_history(history)
-    return "Atualizado"
+    try:
+        # Inserir novo registro no Supabase
+        data = {
+            'cliente': cliente,
+            'etapa': etapa,
+            'status': new_value,
+            'data_modificacao': datetime.now().isoformat()
+        }
+        
+        result = supabase.table('status_history').insert(data).execute()
+        print(f"Registro salvo com sucesso: {result.data}")
+        
+        return "Atualizado"
+    except Exception as e:
+        print(f"Erro ao salvar registro: {str(e)}")
+        return "Erro"
 
 if __name__ == '__main__':
-    # Criar arquivo JSON vazio se não existir
-    if not os.path.exists('status_history.json'):
-        save_status_history([])
-        print("Arquivo JSON inicial criado")
-    
-    print("Diretório atual:", os.getcwd())
     app.run_server(debug=True)
